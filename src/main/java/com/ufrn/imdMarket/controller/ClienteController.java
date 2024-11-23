@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +56,7 @@ public class ClienteController {
     }
     
     @PostMapping(value="/postCliente", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteEntity> postCliente(@RequestBody ClienteDTO clienteDTO){
+    public ResponseEntity<ClienteEntity> postCliente(@RequestBody @Valid ClienteDTO clienteDTO){
         var cliente = new ClienteEntity();
         
         cliente.setCpf(clienteDTO.getCpf());
@@ -67,7 +69,8 @@ public class ClienteController {
     }
     
     @PutMapping(value="/putCliente/{idCliente}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ClienteEntity> putCliente(@PathVariable Long idCliente, @RequestBody ClienteDTO clienteDTO){
+    public ResponseEntity<ClienteEntity> putCliente(@PathVariable Long idCliente, 
+            @RequestBody @Valid ClienteDTO clienteDTO){
         var cliente = new ClienteEntity();
         
         cliente.setId(idCliente);

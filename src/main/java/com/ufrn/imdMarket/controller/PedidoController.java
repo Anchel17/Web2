@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +58,7 @@ public class PedidoController {
     }
     
     @PostMapping(value="/postPedido", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PedidoEntity> postPedido(@RequestBody PedidoDTO pedidoDTO){
+    public ResponseEntity<PedidoEntity> postPedido(@RequestBody @Valid PedidoDTO pedidoDTO){
         var pedido = new PedidoEntity();
         
         pedido.setCodigo(pedidoDTO.getCodigo());
@@ -70,7 +72,8 @@ public class PedidoController {
     
     
     @PutMapping(value="/putPedido/{idPedido}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PedidoEntity> putPedido(@PathVariable Long idPedido, @RequestBody PedidoDTO pedidoDTO){
+    public ResponseEntity<PedidoEntity> putPedido(@PathVariable Long idPedido,
+            @RequestBody @Valid PedidoDTO pedidoDTO){
         var optPedido = pedidoRepository.findById(idPedido);
         
         if(optPedido.isEmpty()) {
@@ -87,7 +90,8 @@ public class PedidoController {
     }
     
     @PutMapping(value="/adicionarProduto/{idPedido}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PedidoEntity> adicionarProdutoAoPedido(@PathVariable Long idPedido, @RequestBody ProdutoDTO produtoDTO){
+    public ResponseEntity<PedidoEntity> adicionarProdutoAoPedido(@PathVariable Long idPedido,
+            @RequestBody @Valid ProdutoDTO produtoDTO){
         var optPedido = pedidoRepository.findById(idPedido);
         
         optPedido.ifPresent(pedido ->{

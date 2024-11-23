@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +58,7 @@ public class ProdutoController {
     }
     
     @PostMapping(value="/postProduto", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProdutoEntity> postProduto(@RequestBody ProdutoDTO produtoDTO){
+    public ResponseEntity<ProdutoEntity> postProduto(@RequestBody @Valid ProdutoDTO produtoDTO){
         var produto = new ProdutoEntity();
         
         produto.setNomeProduto(produtoDTO.getNomeProduto());
@@ -71,7 +73,8 @@ public class ProdutoController {
     }
     
     @PutMapping(value="/putProduto/{idProduto}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProdutoEntity> putProduto(@PathVariable Long idProduto, @RequestBody ProdutoDTO produtoDTO){
+    public ResponseEntity<ProdutoEntity> putProduto(@PathVariable Long idProduto, 
+            @RequestBody @Valid ProdutoDTO produtoDTO){
         var produto = new ProdutoEntity();
         
         produto.setId(idProduto);
