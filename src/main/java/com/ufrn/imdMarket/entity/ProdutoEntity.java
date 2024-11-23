@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.ufrn.imdMarket.enums.GeneroProdutoEnum;
@@ -46,6 +48,10 @@ public class ProdutoEntity {
     
     @Column(name="LOTE_PRODUTO")
     private String lote;
+    
+    @ManyToOne
+    @JoinColumn(name="ID_PEDIDO")
+    private PedidoEntity pedido;
     
     @Column(name="DELETED")
     private Boolean produtoDeletado;

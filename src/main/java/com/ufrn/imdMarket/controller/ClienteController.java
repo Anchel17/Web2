@@ -91,9 +91,9 @@ public class ClienteController {
     public ResponseEntity<ClienteEntity> deleteLogic(@PathVariable Long idCliente){
         var cliente = clienteRepository.findById(idCliente);
         
-        cliente.ifPresent(p -> {
-            p.setClienteDeleted(true);
-            clienteRepository.save(p);
+        cliente.ifPresent(c -> {
+            c.setClienteDeleted(true);
+            clienteRepository.save(c);
         });
         
         return ResponseEntity.ok().build();
