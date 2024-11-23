@@ -61,8 +61,9 @@ public class PedidoController {
         
         pedido.setCodigo(pedidoDTO.getCodigo());
         pedido.setCliente(buildClienteEntity(pedidoDTO.getCliente()));
-        pedido.setProdutos(buildListProdutos(pedidoDTO.getProdutos()));
         pedido.setPedidoDeleted(false);
+        pedido.setProdutos(buildListProdutos(pedidoDTO.getProdutos()));
+        associarProdutosAPedido(pedido, pedido.getProdutos());
         
         return ResponseEntity.ok().body(pedidoRepository.save(pedido));
     }
@@ -80,7 +81,7 @@ public class PedidoController {
         pedido.setCodigo(pedidoDTO.getCodigo());
         pedido.setCliente(buildClienteEntity(pedidoDTO.getCliente()));
         pedido.setProdutos(buildListProdutos(pedidoDTO.getProdutos()));
-        pedido.setPedidoDeleted(false);            
+        pedido.setPedidoDeleted(false);
         
         return ResponseEntity.ok().body(pedidoRepository.save(pedido));
     }
@@ -186,5 +187,13 @@ public class PedidoController {
         });
         
         return produtos;
+    }
+    
+    private void associarProdutosAPedido(PedidoEntity pedido, List<ProdutoEntity> produtos) {
+        produtos.forEach(produto ->{
+            produto.setPedido(pedido);
+            
+            produtoRepository.save(produto);
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.ufrn.imdMarket.entity;
 
 import java.time.LocalDate;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,7 +50,7 @@ public class ProdutoEntity {
     @Column(name="LOTE_PRODUTO")
     private String lote;
     
-    @ManyToOne
+    @ManyToOne(cascade=CascadeType.ALL)
     @JoinColumn(name="ID_PEDIDO")
     private PedidoEntity pedido;
     

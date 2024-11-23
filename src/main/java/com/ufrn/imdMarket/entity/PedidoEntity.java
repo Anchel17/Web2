@@ -13,11 +13,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
@@ -37,10 +37,10 @@ public class PedidoEntity {
     private String codigo;
     
     @OneToMany(mappedBy="pedido", fetch = FetchType.LAZY)
+    @JsonBackReference
     private List<ProdutoEntity> produtos;
     
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name="ID_CLIENTE")
     private ClienteEntity cliente;
     
