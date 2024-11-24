@@ -1,6 +1,5 @@
 package com.ufrn.imdMarket.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imdMarket.dto.ProdutoDTO;
-import com.ufrn.imdMarket.entity.ClienteEntity;
 import com.ufrn.imdMarket.entity.ProdutoEntity;
 import com.ufrn.imdMarket.repository.ProdutoRepository;
+import com.ufrn.imdMarket.service.ProdutoService;
 
 @RestController
 @RequestMapping("/produtos")
@@ -29,29 +28,20 @@ public class ProdutoController {
     @Autowired
     private ProdutoRepository produtoRepository;
     
+    @Autowired
+    private ProdutoService produtoService;
+    
     @GetMapping(value="/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ProdutoEntity>> getAllProdutos(){
-        var produtos = produtoRepository.findAll();
-        
-        List<ProdutoEntity> listaFinalProdutos = new ArrayList<>();
-        
-        produtos.forEach(p -> {
-           if(Boolean.FALSE.equals(p.getProdutoDeletado())) {
-               listaFinalProdutos.add(p);
-           }
-        });
-        
-        return ResponseEntity.ok().body(listaFinalProdutos);
+        return ResponseEntity.ok().body(produtoService.getAllProdutos());
     }
     
     @GetMapping(value="/get/{idProduto}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Optional<ProdutoEntity>> getById(@PathVariable Long idProduto){
-        var produto = produtoRepository.findById(idProduto);
+        var optProduto = produtoService.getProduto(idProduto);
         
-        if(produto.isPresent()) {
-            if(Boolean.FALSE.equals(produto.get().getProdutoDeletado())) {
-                return ResponseEntity.ok().body(produto);
-            }
+        if(optProduto.isPresent() && Boolean.FALSE.equals(optProduto.get().getProdutoDeletado())) {
+            return ResponseEntity.ok().body(optProduto);
         }
         
         return ResponseEntity.notFound().build();
@@ -59,52 +49,32 @@ public class ProdutoController {
     
     @PostMapping(value="/postProduto", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProdutoEntity> postProduto(@RequestBody @Valid ProdutoDTO produtoDTO){
-        var produto = new ProdutoEntity();
-        
-        produto.setNomeProduto(produtoDTO.getNomeProduto());
-        produto.setMarca(produtoDTO.getMarca());
-        produto.setGenero(produtoDTO.getGenero());
-        produto.setLote(produtoDTO.getLote());
-        produto.setDataFabricacao(produtoDTO.getDataFabricacao());
-        produto.setDataValidade(produtoDTO.getDataValidade());
-        produto.setProdutoDeletado(false);
-        
-        return ResponseEntity.ok().body(produtoRepository.save(produto));
+        return ResponseEntity.ok().body(produtoRepository.save(produtoService.cadastrarProduto(produtoDTO)));
     }
     
     @PutMapping(value="/putProduto/{idProduto}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProdutoEntity> putProduto(@PathVariable Long idProduto, 
             @RequestBody @Valid ProdutoDTO produtoDTO){
-        var produto = new ProdutoEntity();
+        var optProduto = produtoService.atualizarProduto(idProduto, produtoDTO);
+       
+        if(optProduto.isPresent()) {
+            return ResponseEntity.ok().body(optProduto.get());
+        }
         
-        produto.setId(idProduto);
-        produto.setNomeProduto(produtoDTO.getNomeProduto());
-        produto.setMarca(produtoDTO.getMarca());
-        produto.setGenero(produtoDTO.getGenero());
-        produto.setLote(produtoDTO.getLote());
-        produto.setDataFabricacao(produtoDTO.getDataFabricacao());
-        produto.setDataValidade(produtoDTO.getDataValidade());
-        produto.setProdutoDeletado(false);
-        
-        return ResponseEntity.ok().body(produtoRepository.save(produto));
+        return ResponseEntity.notFound().build();
     }
     
     @DeleteMapping(value="/deleteProduto/{idProduto}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProdutoEntity> deleteProduto(@PathVariable Long idProduto){
-        produtoRepository.deleteById(idProduto);
+        var isProdutoDeleted = produtoService.deleteProduto(idProduto);
         
-        return ResponseEntity.ok().build();
+        return isProdutoDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
     
     @DeleteMapping(value="/deleteProduto/logic/{idProduto}")
     public ResponseEntity<ProdutoEntity> deleteLogic(@PathVariable Long idProduto){
-        var produto = produtoRepository.findById(idProduto);
+        var isProdutoLogicDeleted = produtoService.deleteLogicProduto(idProduto);
         
-        produto.ifPresent(p -> {
-            p.setProdutoDeletado(true);
-            produtoRepository.save(p);
-        });
-        
-        return ResponseEntity.ok().build();
+        return isProdutoLogicDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }

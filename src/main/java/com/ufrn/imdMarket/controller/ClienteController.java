@@ -1,6 +1,5 @@
 package com.ufrn.imdMarket.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,36 +19,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imdMarket.dto.ClienteDTO;
 import com.ufrn.imdMarket.entity.ClienteEntity;
-import com.ufrn.imdMarket.repository.ClienteRepository;
+import com.ufrn.imdMarket.service.ClienteService;
 
 @RestController
 @RequestMapping("/clientes")
-public class ClienteController {
+public class ClienteController {    
     @Autowired
-    private ClienteRepository clienteRepository;
+    private ClienteService clienteService;
     
     @GetMapping(value="/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ClienteEntity>> getAllclientes(){
-        var clientes = clienteRepository.findAll();
-        List<ClienteEntity> listaFinalClientes = new ArrayList<>();
-        
-        clientes.forEach(c -> {
-           if(Boolean.FALSE.equals(c.getClienteDeleted())) {
-               listaFinalClientes.add(c);
-           }
-        });
-        
-        return ResponseEntity.ok().body(listaFinalClientes);
+        return ResponseEntity.ok().body(clienteService.getAllClientes());
     }
     
     @GetMapping(value="/get/{idCliente}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Optional<ClienteEntity>> getById(@PathVariable Long idCliente){
-        var cliente = clienteRepository.findById(idCliente);
+        var cliente = clienteService.getCliente(idCliente);
         
-        if(cliente.isPresent()) {
-            if(Boolean.FALSE.equals(cliente.get().getClienteDeleted())) {
-                return ResponseEntity.ok().body(cliente);
-            }
+        if(cliente.isPresent() && Boolean.FALSE.equals(cliente.get().getClienteDeleted())) {
+            return ResponseEntity.ok().body(cliente);
         }
         
         return ResponseEntity.notFound().build();
@@ -57,48 +45,32 @@ public class ClienteController {
     
     @PostMapping(value="/postCliente", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteEntity> postCliente(@RequestBody @Valid ClienteDTO clienteDTO){
-        var cliente = new ClienteEntity();
-        
-        cliente.setCpf(clienteDTO.getCpf());
-        cliente.setNome(clienteDTO.getNome());
-        cliente.setGenero(clienteDTO.getGenero());
-        cliente.setDataNascimento(clienteDTO.getDataNascimento());
-        cliente.setClienteDeleted(false);
-        
-        return ResponseEntity.ok().body(clienteRepository.save(cliente));
+        return ResponseEntity.ok().body(clienteService.cadastrarCliente(clienteDTO));
     }
     
     @PutMapping(value="/putCliente/{idCliente}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteEntity> putCliente(@PathVariable Long idCliente, 
             @RequestBody @Valid ClienteDTO clienteDTO){
-        var cliente = new ClienteEntity();
+        var cliente = clienteService.atualizarCliente(idCliente, clienteDTO);
         
-        cliente.setId(idCliente);
-        cliente.setCpf(clienteDTO.getCpf());
-        cliente.setNome(clienteDTO.getNome());
-        cliente.setGenero(clienteDTO.getGenero());
-        cliente.setDataNascimento(clienteDTO.getDataNascimento());
-        cliente.setClienteDeleted(false);
+        if(cliente.isPresent()) {
+            return ResponseEntity.ok().body(cliente.get());
+        }
         
-        return ResponseEntity.ok().body(clienteRepository.save(cliente));
+        return ResponseEntity.notFound().build();
     }
     
     @DeleteMapping(value="/deleteCliente/{idCliente}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ClienteEntity> deleteProduto(@PathVariable Long idCliente){
-        clienteRepository.deleteById(idCliente);
+        var isClientDeleted = clienteService.deleteCliente(idCliente);
         
-        return ResponseEntity.ok().build();
+        return isClientDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build(); 
     }
     
     @DeleteMapping(value="/deleteCliente/logic/{idCliente}")
     public ResponseEntity<ClienteEntity> deleteLogic(@PathVariable Long idCliente){
-        var cliente = clienteRepository.findById(idCliente);
-        
-        cliente.ifPresent(c -> {
-            c.setClienteDeleted(true);
-            clienteRepository.save(c);
-        });
-        
-        return ResponseEntity.ok().build();
+        var isClienteLogicDeleted = clienteService.deleteLogicCliente(idCliente);
+
+        return isClienteLogicDeleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }
