@@ -17,9 +17,8 @@ public class PedidoDTO {
     private String codigo;
     
     @NotNull
-    @NotEmpty
     private List<ProdutoDTO> produtos;
     
     @NotNull
-    private ClienteDTO cliente;
+    private Long idCliente;
 }

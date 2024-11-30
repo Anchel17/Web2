@@ -22,12 +22,10 @@ public class ProdutoDTO {
     @NotEmpty
     private String marca;
     
-    @NotNull
-    @NotEmpty    
+    @NotNull    
     private LocalDate dataFabricacao;
     
     @NotNull
-    @NotEmpty
     private LocalDate dataValidade;
     
     @NotNull

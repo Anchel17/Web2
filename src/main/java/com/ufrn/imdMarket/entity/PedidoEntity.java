@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,7 +37,7 @@ public class PedidoEntity {
     private String codigo;
     
     @OneToMany(mappedBy="pedido", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @JsonIgnore
     private List<ProdutoEntity> produtos;
     
     @ManyToOne

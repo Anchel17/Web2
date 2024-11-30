@@ -19,15 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ufrn.imdMarket.dto.ProdutoDTO;
 import com.ufrn.imdMarket.entity.ProdutoEntity;
-import com.ufrn.imdMarket.repository.ProdutoRepository;
 import com.ufrn.imdMarket.service.ProdutoService;
 
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
-    @Autowired
-    private ProdutoRepository produtoRepository;
-    
+
     @Autowired
     private ProdutoService produtoService;
     
@@ -49,7 +46,7 @@ public class ProdutoController {
     
     @PostMapping(value="/postProduto", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProdutoEntity> postProduto(@RequestBody @Valid ProdutoDTO produtoDTO){
-        return ResponseEntity.ok().body(produtoRepository.save(produtoService.cadastrarProduto(produtoDTO)));
+        return ResponseEntity.ok().body(produtoService.cadastrarProduto(produtoDTO));
     }
     
     @PutMapping(value="/putProduto/{idProduto}", produces = MediaType.APPLICATION_JSON_VALUE)
