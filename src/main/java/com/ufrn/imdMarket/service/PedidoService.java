@@ -84,6 +84,7 @@ public class PedidoService {
         return Optional.empty();   
     }
     
+    @Transactional
     public Optional<PedidoEntity> adicionarProdutoAoPedido(Long idPedido, ProdutoDTO produtoDTO){
         var optPedido = pedidoRepository.findById(idPedido);
         
@@ -98,14 +99,17 @@ public class PedidoService {
             produto.setDataFabricacao(produtoDTO.getDataFabricacao());
             produto.setDataValidade(produtoDTO.getDataValidade());
             produto.setProdutoDeletado(false);
+            produto.setPedido(pedido);
             pedido.getProdutos().add(produto);
             
+            produtoRepository.save(produto);
             return Optional.of(pedidoRepository.save(pedido));
         }
         
         return Optional.empty();
     }
     
+    @Transactional
     public Optional<PedidoEntity> removerProdutoDoPedido(Long idPedido, Long idProduto){
         var optPedido = pedidoRepository.findById(idPedido);
         
@@ -123,8 +127,11 @@ public class PedidoService {
             }
             
             if(Boolean.TRUE.equals(achou)) {
+                var produto = pedido.getProdutos().get(indice);
+                produto.setPedido(null);
                 pedido.getProdutos().remove(indice);
                 
+                produtoRepository.save(produto);
                 return Optional.of(pedidoRepository.save(pedido));
             }
         }
@@ -132,12 +139,12 @@ public class PedidoService {
         return Optional.empty();
     }
     
-    //TODO
-    //Implementar a deleção das relações na tabela (deletar pedido do cliente, por ex)
+    @Transactional
     public Boolean deletePedido(Long idPedido) {
         var optPedido = pedidoRepository.findById(idPedido);
         
         if(optPedido.isPresent()) {
+            excluirRelacoesComPedido(optPedido.get());
             pedidoRepository.deleteById(idPedido);
             
             return Boolean.TRUE;
@@ -146,13 +153,13 @@ public class PedidoService {
         return Boolean.FALSE;
     }
     
-    //TODO
-    //Implementar a deleção das relações na tabela (deletar pedido do cliente, por ex)
+    @Transactional
     public Boolean deleteLogicPedido(Long idPedido) {
         var optPedido = pedidoRepository.findById(idPedido);
         
         if(optPedido.isPresent()) {
             var pedido = optPedido.get();
+            excluirRelacoesComPedido(optPedido.get());
             
             pedido.setPedidoDeleted(Boolean.TRUE);
             pedidoRepository.save(pedido);
@@ -192,4 +199,36 @@ public class PedidoService {
         });
     }
     
+    private void excluirRelacoesComPedido(PedidoEntity pedido) {
+        excluirPedidoDeCliente(pedido);
+        excluirPedidoDeProduto(pedido);
+    }
+    
+    private void excluirPedidoDeCliente(PedidoEntity pedido) {
+        var cliente = pedido.getCliente();  
+        var indice = 0;
+        var achou = Boolean.FALSE;
+        
+        for(var i = 0; i < cliente.getPedidos().size(); i++) {
+            if(cliente.getPedidos().get(i).getId().equals(pedido.getId())) {
+                indice = i;
+                achou = Boolean.TRUE;
+                break;
+            }
+        }
+        
+        if(Boolean.TRUE.equals(achou)) {
+            cliente.getPedidos().remove(indice);
+            clienteRepository.save(cliente);
+        }
+    }
+    
+    private void excluirPedidoDeProduto(PedidoEntity pedido) {
+        var produtos = pedido.getProdutos();
+        produtos.forEach(produto -> {
+            produto.setPedido(null);
+        });
+        
+        produtoRepository.saveAll(produtos);
+    }
 }

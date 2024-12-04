@@ -15,10 +15,11 @@ public class PedidoDTO {
     @NotNull
     @NotEmpty
     private String codigo;
+
+    @NotNull
+    private Long idCliente;
     
     @NotNull
     private List<ProdutoDTO> produtos;
     
-    @NotNull
-    private Long idCliente;
 }
