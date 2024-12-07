@@ -55,13 +55,13 @@ public class PedidoController {
     
     @PutMapping(value="/putPedido/{idPedido}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PedidoEntity> putPedido(@PathVariable Long idPedido,
-            @RequestBody @Valid PedidoDTO pedidoDTO){
+            @RequestBody PedidoDTO pedidoDTO){
         var optPedido = pedidoService.atualizarPedido(idPedido, pedidoDTO);
-        
+
         if(optPedido.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         return ResponseEntity.ok().body(pedidoRepository.save(optPedido.get()));
     }
     

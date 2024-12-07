@@ -71,12 +71,17 @@ public class PedidoService {
             throw new IllegalArgumentException("Cliente não encontrado na base de dados");
         }
         
+        if(Boolean.FALSE.equals(optCliente.get().getId().equals(optPedido.get().getCliente().getId()))) {
+            throw new IllegalArgumentException("Operação não permitida, não pode passar seus pedidos para outro cliente.");
+        }
+
         if(optPedido.isPresent()) {
             var pedido = optPedido.get();
             pedido.setCodigo(pedidoDTO.getCodigo());
             pedido.setCliente(optCliente.get());
             pedido.setProdutos(buildListProdutos(pedidoDTO.getProdutos()));
             pedido.setPedidoDeleted(false);
+            associarProdutosAPedido(pedido, pedido.getProdutos());
             
             return Optional.of(pedido);
         }
