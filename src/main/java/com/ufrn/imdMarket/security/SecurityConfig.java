@@ -14,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
+
+
 /*A Anotação EnableWebSecurity diz para o Spring Security habilitar o Web Security
  * que vai ser configurado nessa classe, retirando as configurações padrões
  *  */
@@ -32,7 +35,9 @@ public class SecurityConfig {
         return httpSecurity
                         .csrf(csrf -> csrf.disable())
                         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .headers(headers -> headers.frameOptions().disable())
                         .authorizeRequests()
+                            .requestMatchers(toH2Console()).permitAll()
                             .antMatchers(HttpMethod.POST, "/auth/register").permitAll()
                             .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
                             .antMatchers(HttpMethod.POST).hasRole("ADMIN")
